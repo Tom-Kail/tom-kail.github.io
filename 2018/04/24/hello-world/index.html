@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="description" content="golang sync.Map 源码分析go内置map并非线程安全，用go 1.9版本测试的时候，并发读写或并发写都会panic。1234567891011121314151617181920212223package mainfunc main() &amp;#123;	m := make(map[string]string)	go func() &amp;#123;		for &amp;#123;			_ = m[">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
+<meta property="og:title" content="cnt blog">
 <meta property="og:url" content="http://yoursite.com/2018/04/24/hello-world/index.html">
 <meta property="og:site_name" content="cnt blog">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="golang sync.Map 源码分析go内置map并非线程安全，用go 1.9版本测试的时候，并发读写或并发写都会panic。1234567891011121314151617181920212223package mainfunc main() &amp;#123;	m := make(map[string]string)	go func() &amp;#123;		for &amp;#123;			_ = m[">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-04-24T04:34:28.458Z">
+<meta property="og:updated_time" content="2018-04-24T09:27:29.021Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="twitter:title" content="cnt blog">
+<meta name="twitter:description" content="golang sync.Map 源码分析go内置map并非线程安全，用go 1.9版本测试的时候，并发读写或并发写都会panic。1234567891011121314151617181920212223package mainfunc main() &amp;#123;	m := make(map[string]string)	go func() &amp;#123;		for &amp;#123;			_ = m[">
 
 
 
@@ -125,7 +125,7 @@
 
 
 
-  <title>Hello World | cnt blog</title>
+  <title> | cnt blog</title>
   
 
 
@@ -249,7 +249,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Hello World</h1>
+          <h1 class="post-title" itemprop="name headline"></h1>
         
 
         <div class="post-meta">
@@ -299,15 +299,28 @@
       
 
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
+        <hr>
+<h2 id="golang-sync-Map-源码分析"><a href="#golang-sync-Map-源码分析" class="headerlink" title="golang sync.Map 源码分析"></a>golang sync.Map 源码分析</h2><p>go内置map并非线程安全，用go 1.9版本测试的时候，并发读写或并发写都会panic。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	m := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			_ = m[<span class="string">"foo"</span>]</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			m[<span class="string">"bar"</span>] = <span class="string">"foo"</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    		<span class="keyword">for</span> &#123;</span><br><span class="line">    			m[<span class="string">"fooo"</span>] = <span class="string">"barbar"</span></span><br><span class="line">    		&#125;</span><br><span class="line">    &#125;()</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">select</span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>go官方博客中给出一种<a href="https://blog.golang.org/go-maps-in-action#TOC_6." target="_blank" rel="noopener">方案</a>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 使用嵌入式结构体为map增加一个读写锁</span><br><span class="line">var counter = struct&#123;</span><br><span class="line">    sync.RWMutex</span><br><span class="line">    m map[string]int</span><br><span class="line">&#125;&#123;m: make(map[string]int)&#125;</span><br><span class="line"></span><br><span class="line">// 读</span><br><span class="line">counter.RLock()</span><br><span class="line">n := counter.m[&quot;some_key&quot;]</span><br><span class="line">counter.RUnlock()</span><br><span class="line">fmt.Println(&quot;some_key:&quot;, n)</span><br><span class="line"></span><br><span class="line">// 写</span><br><span class="line">counter.Lock()</span><br><span class="line">counter.m[&quot;some_key&quot;]++</span><br><span class="line">counter.Unlock()</span><br></pre></td></tr></table></figure></p>
+<p>有网友写了<a href="https://github.com/orcaman/concurrent-map" target="_blank" rel="noopener">concurrent-map</a>支持并发安全,采用sharding的方式提升性能。他向go官方推荐了该方案，但被婉拒了，再后来就有了sync.Map包</p>
+<h3 id="sync-Map源码"><a href="#sync-Map源码" class="headerlink" title="sync.Map源码"></a>sync.Map<a href="https://github.com/golang/go/blob/master/src/sync/map.go" target="_blank" rel="noopener">源码</a></h3><p>来看看go官方是怎么优化的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">type Map struct &#123;</span><br><span class="line">	mu Mutex </span><br><span class="line"></span><br><span class="line">	read atomic.Value // 英文注释readOnly，单并不是只读的，</span><br><span class="line"></span><br><span class="line">	dirty map[interface&#123;&#125;]*entry /</span><br><span class="line"></span><br><span class="line">	misses int // 从read中查数据的未命中次数，当值达到len(dirty)的时候会对dirty做一次提升</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
 <p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
 <h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
 <p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
 <h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
 <p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ul>
+<li><a href="https://yanyiwu.com/work/2015/02/07/golang-concurrency-safety.html" target="_blank" rel="noopener">https://yanyiwu.com/work/2015/02/07/golang-concurrency-safety.html</a></li>
+<li><a href="https://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong" target="_blank" rel="noopener">https://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong</a></li>
+<li><a href="http://colobu.com/2017/07/11/dive-into-sync-Map/" target="_blank" rel="noopener">http://colobu.com/2017/07/11/dive-into-sync-Map/</a></li>
+<li><a href="https://pathbox.github.io/2018/04/05/understand-sync.Map-in-Goalng/#amended" target="_blank" rel="noopener">https://pathbox.github.io/2018/04/05/understand-sync.Map-in-Goalng/#amended</a></li>
+<li><a href="https://studygolang.com/articles/1495" target="_blank" rel="noopener">https://studygolang.com/articles/1495</a></li>
+<li><a href="http://www.opscoder.info/golang_mutex.html" target="_blank" rel="noopener">http://www.opscoder.info/golang_mutex.html</a></li>
+<li><a href="https://golang.org/ref/mem" target="_blank" rel="noopener">https://golang.org/ref/mem</a></li>
+<li><a href="https://blog.yiz96.com/golang-sync-map/" target="_blank" rel="noopener">https://blog.yiz96.com/golang-sync-map/</a> </li>
+</ul>
 
       
     </div>
@@ -438,7 +451,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#golang-sync-Map-源码分析"><span class="nav-number">1.</span> <span class="nav-text">golang sync.Map 源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#sync-Map源码"><span class="nav-number">1.1.</span> <span class="nav-text">sync.Map源码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文章"><span class="nav-number">1.5.</span> <span class="nav-text">参考文章</span></a></li></ol></li></ol></div>
             
 
           </div>
