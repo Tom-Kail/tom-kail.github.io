@@ -80,12 +80,12 @@
 
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="cnt blog">
+<meta property="og:title" content="小菜园">
 <meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="cnt blog">
+<meta property="og:site_name" content="小菜园">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="cnt blog">
+<meta name="twitter:title" content="小菜园">
 
 
 
@@ -121,7 +121,7 @@
 
 
 
-  <title>cnt blog</title>
+  <title>小菜园</title>
   
 
 
@@ -152,7 +152,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">cnt blog</span>
+        <span class="site-title">小菜园</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -229,6 +229,159 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/25/sync-map/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="CNT">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小菜园">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/25/sync-map/" itemprop="url">sync.Map源码分析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-25T15:14:31+08:00">
+                2018-04-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <hr>
+<h2 id="golang-sync-Map-源码分析"><a href="#golang-sync-Map-源码分析" class="headerlink" title="golang sync.Map 源码分析"></a>golang sync.Map 源码分析</h2><h2 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h2><h3 id="go内置map并非线程安全，用go-1-9版本测试的时候，并发读写或并发写都会panic。"><a href="#go内置map并非线程安全，用go-1-9版本测试的时候，并发读写或并发写都会panic。" class="headerlink" title="go内置map并非线程安全，用go 1.9版本测试的时候，并发读写或并发写都会panic。"></a>go内置map并非线程安全，用go 1.9版本测试的时候，并发读写或并发写都会panic。</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main<span class="string">`</span></span><br></pre></td></tr></table></figure>
+<p>func main() {<br>    m := make(map[string]string)<br>    go func() {<br>        for {<br>            _ = m[“foo”]<br>        }<br>    }()</p>
+<pre><code>go func() {
+    for {
+        m[&quot;bar&quot;] = &quot;foo&quot;
+    }
+}()
+
+go func() {
+        for {
+            m[&quot;fooo&quot;] = &quot;barbar&quot;
+        }
+}()
+
+select {}
+</code></pre><p>}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">### go官方博客中给出一种[方案](https://blog.golang.org/go-maps-in-action#TOC_6.)。</span><br><span class="line">``` go</span><br><span class="line">// 使用嵌入式结构体为map增加一个读写锁</span><br><span class="line">var counter = struct&#123;</span><br><span class="line">    sync.RWMutex</span><br><span class="line">    m map[string]int</span><br><span class="line">&#125;&#123;m: make(map[string]int)&#125;</span><br><span class="line"></span><br><span class="line">// 读</span><br><span class="line">counter.RLock()</span><br><span class="line">n := counter.m[&quot;some_key&quot;]</span><br><span class="line">counter.RUnlock()</span><br><span class="line">fmt.Println(&quot;some_key:&quot;, n)</span><br><span class="line"></span><br><span class="line">// 写</span><br><span class="line">counter.Lock()</span><br><span class="line">counter.m[&quot;some_key&quot;]++</span><br><span class="line">counter.Unlock()</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line">### 有网友写了[concurrent-map](https://github.com/orcaman/concurrent-map)支持并发安全,采用sharding的方式提升性能。他向go官方推荐了该方案，但被婉拒了，再后来就有了sync.Map包</span><br><span class="line"></span><br><span class="line">## sync.Map[源码](https://github.com/golang/go/blob/master/src/sync/map.go)</span><br><span class="line">来看看go官方是怎么优化的。</span><br><span class="line"></span><br><span class="line">&gt; 流程</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">``` go</span><br><span class="line">type Map struct &#123;</span><br><span class="line">	mu Mutex </span><br><span class="line"></span><br><span class="line">	read atomic.Value // 所有增删改查操作都是先从read开始操作，相当于cache</span><br><span class="line"></span><br><span class="line">	dirty map[interface&#123;&#125;]*entry // </span><br><span class="line"></span><br><span class="line">	misses int // 从read中查数据的未命中次数，当值达到len(dirty)的时候会对dirty做一次提升</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>sync.Map操作流程图<br><img src="/2018/04/25/sync-map/sync.Map源码分析.png" alt="sync.Map基本操作流程图"></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ul>
+<li><a href="https://yanyiwu.com/work/2015/02/07/golang-concurrency-safety.html" target="_blank" rel="noopener">https://yanyiwu.com/work/2015/02/07/golang-concurrency-safety.html</a></li>
+<li><a href="https://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong" target="_blank" rel="noopener">https://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong</a></li>
+<li><a href="http://colobu.com/2017/07/11/dive-into-sync-Map/" target="_blank" rel="noopener">http://colobu.com/2017/07/11/dive-into-sync-Map/</a></li>
+<li><a href="https://pathbox.github.io/2018/04/05/understand-sync.Map-in-Goalng/#amended" target="_blank" rel="noopener">https://pathbox.github.io/2018/04/05/understand-sync.Map-in-Goalng/#amended</a></li>
+<li><a href="https://studygolang.com/articles/1495" target="_blank" rel="noopener">https://studygolang.com/articles/1495</a></li>
+<li><a href="http://www.opscoder.info/golang_mutex.html" target="_blank" rel="noopener">http://www.opscoder.info/golang_mutex.html</a></li>
+<li><a href="https://golang.org/ref/mem" target="_blank" rel="noopener">https://golang.org/ref/mem</a></li>
+<li><a href="https://blog.yiz96.com/golang-sync-map/" target="_blank" rel="noopener">https://blog.yiz96.com/golang-sync-map/</a> </li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/24/hello-world/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -238,7 +391,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="cnt blog">
+      <meta itemprop="name" content="小菜园">
     </span>
 
     
@@ -302,10 +455,10 @@
           
             <hr>
 <h2 id="golang-sync-Map-源码分析"><a href="#golang-sync-Map-源码分析" class="headerlink" title="golang sync.Map 源码分析"></a>golang sync.Map 源码分析</h2><p>go内置map并非线程安全，用go 1.9版本测试的时候，并发读写或并发写都会panic。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	m := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			_ = m[<span class="string">"foo"</span>]</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			m[<span class="string">"bar"</span>] = <span class="string">"foo"</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    		<span class="keyword">for</span> &#123;</span><br><span class="line">    			m[<span class="string">"fooo"</span>] = <span class="string">"barbar"</span></span><br><span class="line">    		&#125;</span><br><span class="line">    &#125;()</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">select</span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>go官方博客中给出一种<a href="https://blog.golang.org/go-maps-in-action#TOC_6." target="_blank" rel="noopener">方案</a>。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用嵌入式结构体为map增加一个读写锁</span></span><br><span class="line"><span class="keyword">var</span> counter = <span class="keyword">struct</span>&#123;</span><br><span class="line">    sync.RWMutex</span><br><span class="line">    m <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span></span><br><span class="line">&#125;&#123;m: <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>)&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读</span></span><br><span class="line">counter.RLock()</span><br><span class="line">n := counter.m[<span class="string">"some_key"</span>]</span><br><span class="line">counter.RUnlock()</span><br><span class="line">fmt.Println(<span class="string">"some_key:"</span>, n)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 写</span></span><br><span class="line">counter.Lock()</span><br><span class="line">counter.m[<span class="string">"some_key"</span>]++</span><br><span class="line">counter.Unlock()</span><br></pre></td></tr></table></figure></p>
+<p>go官方博客中给出一种<a href="https://blog.golang.org/go-maps-in-action#TOC_6." target="_blank" rel="noopener">方案</a>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 使用嵌入式结构体为map增加一个读写锁</span><br><span class="line">var counter = struct&#123;</span><br><span class="line">    sync.RWMutex</span><br><span class="line">    m map[string]int</span><br><span class="line">&#125;&#123;m: make(map[string]int)&#125;</span><br><span class="line"></span><br><span class="line">// 读</span><br><span class="line">counter.RLock()</span><br><span class="line">n := counter.m[&quot;some_key&quot;]</span><br><span class="line">counter.RUnlock()</span><br><span class="line">fmt.Println(&quot;some_key:&quot;, n)</span><br><span class="line"></span><br><span class="line">// 写</span><br><span class="line">counter.Lock()</span><br><span class="line">counter.m[&quot;some_key&quot;]++</span><br><span class="line">counter.Unlock()</span><br></pre></td></tr></table></figure></p>
 <p>有网友写了<a href="https://github.com/orcaman/concurrent-map" target="_blank" rel="noopener">concurrent-map</a>支持并发安全,采用sharding的方式提升性能。他向go官方推荐了该方案，但被婉拒了，再后来就有了sync.Map包</p>
 <h3 id="sync-Map源码"><a href="#sync-Map源码" class="headerlink" title="sync.Map源码"></a>sync.Map<a href="https://github.com/golang/go/blob/master/src/sync/map.go" target="_blank" rel="noopener">源码</a></h3><p>来看看go官方是怎么优化的。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Map <span class="keyword">struct</span> &#123;</span><br><span class="line">	mu Mutex </span><br><span class="line"></span><br><span class="line">	read atomic.Value <span class="comment">// 英文注释readOnly，单并不是只读的，</span></span><br><span class="line"></span><br><span class="line">	dirty <span class="keyword">map</span>[<span class="keyword">interface</span>&#123;&#125;]*entry /</span><br><span class="line"></span><br><span class="line">	misses <span class="keyword">int</span> <span class="comment">// 从read中查数据的未命中次数，当值达到len(dirty)的时候会对dirty做一次提升</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">type Map struct &#123;</span><br><span class="line">	mu Mutex </span><br><span class="line"></span><br><span class="line">	read atomic.Value // 英文注释readOnly，但并不是只读的，只是指针只读</span><br><span class="line"></span><br><span class="line">	dirty map[interface&#123;&#125;]*entry //</span><br><span class="line"></span><br><span class="line">	misses int // 从read中查数据的未命中次数，当值达到len(dirty)的时候会对dirty做一次提升</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
 <p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
 <h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
@@ -403,7 +556,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -411,6 +564,15 @@
 
             
 
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
             
 
           </nav>
