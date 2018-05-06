@@ -248,7 +248,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/05/06/redis/" itemprop="url">redis</a></h1>
+                <a class="post-title-link" href="/2018/05/06/redis/" itemprop="url">redis 源码学习</a></h1>
         
 
         <div class="post-meta">
@@ -572,10 +572,11 @@
         
           
             <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><h2 id="网络层面"><a href="#网络层面" class="headerlink" title="网络层面"></a>网络层面</h2><h2 id="I-O多路复用"><a href="#I-O多路复用" class="headerlink" title="I/O多路复用"></a>I/O多路复用</h2><h3 id="epoll"><a href="#epoll" class="headerlink" title="epoll"></a>epoll</h3><h2 id="goroutine"><a href="#goroutine" class="headerlink" title="goroutine"></a>goroutine</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><h3 id="调度"><a href="#调度" class="headerlink" title="调度"></a>调度</h3><h3 id="channel"><a href="#channel" class="headerlink" title="channel"></a>channel</h3><h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
-<li><a href="https://ninokop.github.io/2018/02/18/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E4%B8%8EGo%E7%BD%91%E7%BB%9C%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" target="_blank" rel="noopener">https://ninokop.github.io/2018/02/18/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E4%B8%8EGo%E7%BD%91%E7%BB%9C%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/</a></li>
-<li><a href="https://github.com/astaxie/build-web-application-with-golang/blob/master/zh/02.7.md" target="_blank" rel="noopener">https://github.com/astaxie/build-web-application-with-golang/blob/master/zh/02.7.md</a></li>
-<li><a href="https://golang.org/ref/mem" target="_blank" rel="noopener">https://golang.org/ref/mem</a></li>
-<li><a href="https://juejin.im/post/59f9c6d66fb9a0450e75713f" target="_blank" rel="noopener">https://juejin.im/post/59f9c6d66fb9a0450e75713f</a></li>
+<li><a href="https://ninokop.github.io/2018/02/18/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E4%B8%8EGo%E7%BD%91%E7%BB%9C%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" target="_blank" rel="noopener">IO多路复用与Go网络库的实现</a></li>
+<li><a href="https://github.com/astaxie/build-web-application-with-golang/blob/master/zh/02.7.md" target="_blank" rel="noopener">build-web-application-with-golang</a></li>
+<li><a href="https://golang.org/ref/mem" target="_blank" rel="noopener">The Go Memory Model</a></li>
+<li><a href="https://juejin.im/post/59f9c6d66fb9a0450e75713f" target="_blank" rel="noopener">IO多路复用原理剖析</a></li>
+<li><a href="https://www.jianshu.com/p/dfd940e7fca2" target="_blank" rel="noopener">聊聊IO多路复用之select、poll、epoll详解</a></li>
 </ul>
 
           
@@ -732,15 +733,15 @@
 
 
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
-<li><a href="https://yanyiwu.com/work/2015/02/07/golang-concurrency-safety.html" target="_blank" rel="noopener">https://yanyiwu.com/work/2015/02/07/golang-concurrency-safety.html</a></li>
-<li><a href="https://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong" target="_blank" rel="noopener">https://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong</a></li>
-<li><a href="http://colobu.com/2017/07/11/dive-into-sync-Map/" target="_blank" rel="noopener">http://colobu.com/2017/07/11/dive-into-sync-Map/</a></li>
-<li><a href="https://pathbox.github.io/2018/04/05/understand-sync.Map-in-Goalng/#amended" target="_blank" rel="noopener">https://pathbox.github.io/2018/04/05/understand-sync.Map-in-Goalng/#amended</a></li>
-<li><a href="https://studygolang.com/articles/1495" target="_blank" rel="noopener">https://studygolang.com/articles/1495</a></li>
-<li><a href="http://www.opscoder.info/golang_mutex.html" target="_blank" rel="noopener">http://www.opscoder.info/golang_mutex.html</a></li>
-<li><a href="https://golang.org/ref/mem" target="_blank" rel="noopener">https://golang.org/ref/mem</a></li>
-<li><a href="https://blog.yiz96.com/golang-sync-map/" target="_blank" rel="noopener">https://blog.yiz96.com/golang-sync-map/</a></li>
-<li><a href="https://juejin.im/post/5ae01447f265da0ba062d2e8" target="_blank" rel="noopener">https://juejin.im/post/5ae01447f265da0ba062d2e8</a> </li>
+<li><a href="https://yanyiwu.com/work/2015/02/07/golang-concurrency-safety.html" target="_blank" rel="noopener">谈谈go语言编程的并发安全</a></li>
+<li><a href="https://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong" target="_blank" rel="noopener">Benign data races: what could possibly go wrong?</a></li>
+<li><a href="http://colobu.com/2017/07/11/dive-into-sync-Map/" target="_blank" rel="noopener">Go 1.9 sync.Map揭秘</a></li>
+<li><a href="https://pathbox.github.io/2018/04/05/understand-sync.Map-in-Goalng/#amended" target="_blank" rel="noopener">理解Goalng线程安全的sync.Map的实现</a></li>
+<li><a href="https://studygolang.com/articles/1495" target="_blank" rel="noopener">Golang 1.3 sync.Atomic源码解析</a></li>
+<li><a href="http://www.opscoder.info/golang_mutex.html" target="_blank" rel="noopener">深入Golang之sync.mutex</a></li>
+<li><a href="https://golang.org/ref/mem" target="_blank" rel="noopener">The Go Memory Model</a></li>
+<li><a href="https://blog.yiz96.com/golang-sync-map/" target="_blank" rel="noopener">golang sync.Map 原理</a></li>
+<li><a href="https://juejin.im/post/5ae01447f265da0ba062d2e8" target="_blank" rel="noopener">go sync.Map源码分析</a> </li>
 </ul>
 
           
@@ -836,7 +837,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>

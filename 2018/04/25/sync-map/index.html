@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="golang," />
+  <meta name="keywords" content="go," />
 
 
 
@@ -80,7 +80,7 @@
 
 
 <meta name="description" content="概述go语言中的map并不是并发安全的,在Go 1.6之前,并发读写map会导致读取到脏数据,在1.6之后则程序直接panic.   go官方博客中给出一种方案。    12345678910111213141516// 使用嵌入式结构体为map增加一个读写锁var counter = struct&amp;#123;    sync.RWMutex    m map[string]int&amp;#125;&amp;#">
-<meta name="keywords" content="golang">
+<meta name="keywords" content="go">
 <meta property="og:type" content="article">
 <meta property="og:title" content="sync.Map源码分析">
 <meta property="og:url" content="http://yoursite.com/2018/04/25/sync-map/index.html">
@@ -88,7 +88,7 @@
 <meta property="og:description" content="概述go语言中的map并不是并发安全的,在Go 1.6之前,并发读写map会导致读取到脏数据,在1.6之后则程序直接panic.   go官方博客中给出一种方案。    12345678910111213141516// 使用嵌入式结构体为map增加一个读写锁var counter = struct&amp;#123;    sync.RWMutex    m map[string]int&amp;#125;&amp;#">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/04/25/sync-map/sync.Map源码分析.png">
-<meta property="og:updated_time" content="2018-05-03T15:35:55.061Z">
+<meta property="og:updated_time" content="2018-05-06T09:54:59.386Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="sync.Map源码分析">
 <meta name="twitter:description" content="概述go语言中的map并不是并发安全的,在Go 1.6之前,并发读写map会导致读取到脏数据,在1.6之后则程序直接panic.   go官方博客中给出一种方案。    12345678910111213141516// 使用嵌入式结构体为map增加一个读写锁var counter = struct&amp;#123;    sync.RWMutex    m map[string]int&amp;#125;&amp;#">
@@ -338,15 +338,15 @@
 
 
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
-<li><a href="https://yanyiwu.com/work/2015/02/07/golang-concurrency-safety.html" target="_blank" rel="noopener">https://yanyiwu.com/work/2015/02/07/golang-concurrency-safety.html</a></li>
-<li><a href="https://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong" target="_blank" rel="noopener">https://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong</a></li>
-<li><a href="http://colobu.com/2017/07/11/dive-into-sync-Map/" target="_blank" rel="noopener">http://colobu.com/2017/07/11/dive-into-sync-Map/</a></li>
-<li><a href="https://pathbox.github.io/2018/04/05/understand-sync.Map-in-Goalng/#amended" target="_blank" rel="noopener">https://pathbox.github.io/2018/04/05/understand-sync.Map-in-Goalng/#amended</a></li>
-<li><a href="https://studygolang.com/articles/1495" target="_blank" rel="noopener">https://studygolang.com/articles/1495</a></li>
-<li><a href="http://www.opscoder.info/golang_mutex.html" target="_blank" rel="noopener">http://www.opscoder.info/golang_mutex.html</a></li>
-<li><a href="https://golang.org/ref/mem" target="_blank" rel="noopener">https://golang.org/ref/mem</a></li>
-<li><a href="https://blog.yiz96.com/golang-sync-map/" target="_blank" rel="noopener">https://blog.yiz96.com/golang-sync-map/</a></li>
-<li><a href="https://juejin.im/post/5ae01447f265da0ba062d2e8" target="_blank" rel="noopener">https://juejin.im/post/5ae01447f265da0ba062d2e8</a> </li>
+<li><a href="https://yanyiwu.com/work/2015/02/07/golang-concurrency-safety.html" target="_blank" rel="noopener">谈谈go语言编程的并发安全</a></li>
+<li><a href="https://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong" target="_blank" rel="noopener">Benign data races: what could possibly go wrong?</a></li>
+<li><a href="http://colobu.com/2017/07/11/dive-into-sync-Map/" target="_blank" rel="noopener">Go 1.9 sync.Map揭秘</a></li>
+<li><a href="https://pathbox.github.io/2018/04/05/understand-sync.Map-in-Goalng/#amended" target="_blank" rel="noopener">理解Goalng线程安全的sync.Map的实现</a></li>
+<li><a href="https://studygolang.com/articles/1495" target="_blank" rel="noopener">Golang 1.3 sync.Atomic源码解析</a></li>
+<li><a href="http://www.opscoder.info/golang_mutex.html" target="_blank" rel="noopener">深入Golang之sync.mutex</a></li>
+<li><a href="https://golang.org/ref/mem" target="_blank" rel="noopener">The Go Memory Model</a></li>
+<li><a href="https://blog.yiz96.com/golang-sync-map/" target="_blank" rel="noopener">golang sync.Map 原理</a></li>
+<li><a href="https://juejin.im/post/5ae01447f265da0ba062d2e8" target="_blank" rel="noopener">go sync.Map源码分析</a> </li>
 </ul>
 
       
@@ -365,7 +365,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/golang/" rel="tag"># golang</a>
+            <a href="/tags/go/" rel="tag"># go</a>
           
         </div>
       
@@ -486,7 +486,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>
