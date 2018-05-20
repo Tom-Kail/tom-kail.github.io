@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="概述网络层面I/O多路复用epollgoroutine优点调度channel参考文章 IO多路复用与Go网络库的实现 build-web-application-with-golang The Go Memory Model IO多路复用原理剖析 聊聊IO多路复用之select、poll、epoll详解">
+<meta name="description" content="概述  I/O 多路复用技术是为了解决进程或线程阻塞到某个 I/O 系统调用而出现的技术，使进程不阻塞于某个特定的 I/O 系统调用。select、poll和epoll都是I/O多路复用的机制。I/O多路复用通过一种机制，可以监视多个描述符，一旦某个描述符就绪（一般是读就绪或者写就绪，就是这个文件描述符进行读写操作之前）与多线程和多进程相比，I/O 多路复用的最大优势是系统开销小，系统不需要建立新">
 <meta name="keywords" content="go">
 <meta property="og:type" content="article">
-<meta property="og:title" content="go为啥支持高并发">
+<meta property="og:title" content="IO多路复用与go">
 <meta property="og:url" content="http://yoursite.com/2018/05/05/go-courrency/index.html">
 <meta property="og:site_name" content="小菜圆">
-<meta property="og:description" content="概述网络层面I/O多路复用epollgoroutine优点调度channel参考文章 IO多路复用与Go网络库的实现 build-web-application-with-golang The Go Memory Model IO多路复用原理剖析 聊聊IO多路复用之select、poll、epoll详解">
+<meta property="og:description" content="概述  I/O 多路复用技术是为了解决进程或线程阻塞到某个 I/O 系统调用而出现的技术，使进程不阻塞于某个特定的 I/O 系统调用。select、poll和epoll都是I/O多路复用的机制。I/O多路复用通过一种机制，可以监视多个描述符，一旦某个描述符就绪（一般是读就绪或者写就绪，就是这个文件描述符进行读写操作之前）与多线程和多进程相比，I/O 多路复用的最大优势是系统开销小，系统不需要建立新">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-06T09:52:07.066Z">
+<meta property="og:updated_time" content="2018-05-20T07:54:14.224Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="go为啥支持高并发">
-<meta name="twitter:description" content="概述网络层面I/O多路复用epollgoroutine优点调度channel参考文章 IO多路复用与Go网络库的实现 build-web-application-with-golang The Go Memory Model IO多路复用原理剖析 聊聊IO多路复用之select、poll、epoll详解">
+<meta name="twitter:title" content="IO多路复用与go">
+<meta name="twitter:description" content="概述  I/O 多路复用技术是为了解决进程或线程阻塞到某个 I/O 系统调用而出现的技术，使进程不阻塞于某个特定的 I/O 系统调用。select、poll和epoll都是I/O多路复用的机制。I/O多路复用通过一种机制，可以监视多个描述符，一旦某个描述符就绪（一般是读就绪或者写就绪，就是这个文件描述符进行读写操作之前）与多线程和多进程相比，I/O 多路复用的最大优势是系统开销小，系统不需要建立新">
 
 
 
@@ -126,7 +126,7 @@
 
 
 
-  <title>go为啥支持高并发 | 小菜圆</title>
+  <title>IO多路复用与go | 小菜圆</title>
   
 
 
@@ -250,7 +250,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">go为啥支持高并发</h1>
+          <h1 class="post-title" itemprop="name headline">IO多路复用与go</h1>
         
 
         <div class="post-meta">
@@ -311,12 +311,15 @@
       
 
       
-        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><h2 id="网络层面"><a href="#网络层面" class="headerlink" title="网络层面"></a>网络层面</h2><h2 id="I-O多路复用"><a href="#I-O多路复用" class="headerlink" title="I/O多路复用"></a>I/O多路复用</h2><h3 id="epoll"><a href="#epoll" class="headerlink" title="epoll"></a>epoll</h3><h2 id="goroutine"><a href="#goroutine" class="headerlink" title="goroutine"></a>goroutine</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><h3 id="调度"><a href="#调度" class="headerlink" title="调度"></a>调度</h3><h3 id="channel"><a href="#channel" class="headerlink" title="channel"></a>channel</h3><h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>  <font color="red"><strong>I/O 多路复用技术是为了解决进程或线程阻塞到某个 I/O 系统调用而出现的技术，使进程不阻塞于某个特定的 I/O 系统调用。</strong></font><br>select、poll和epoll都是I/O多路复用的机制。I/O多路复用通过一种机制，可以监视多个描述符，一旦某个描述符就绪（一般是读就绪或者写就绪，就是这个文件描述符进行读写操作之前）<br>与多线程和多进程相比，I/O 多路复用的最大优势是系统开销小，系统不需要建立新的进程或者线程，也不必维护这些线程和进程。</p>
+<h2 id="I-O多路复用"><a href="#I-O多路复用" class="headerlink" title="I/O多路复用"></a>I/O多路复用</h2><h3 id="epoll"><a href="#epoll" class="headerlink" title="epoll"></a>epoll</h3><h2 id="goroutine"><a href="#goroutine" class="headerlink" title="goroutine"></a>goroutine</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><h3 id="调度"><a href="#调度" class="headerlink" title="调度"></a>调度</h3><h3 id="channel"><a href="#channel" class="headerlink" title="channel"></a>channel</h3><h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
+<li><a href="https://blog.csdn.net/tennysonsky/article/details/45745887" target="_blank" rel="noopener">Linux系统编程——I/O多路复用select、poll、epoll的区别使用</a></li>
 <li><a href="https://ninokop.github.io/2018/02/18/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E4%B8%8EGo%E7%BD%91%E7%BB%9C%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" target="_blank" rel="noopener">IO多路复用与Go网络库的实现</a></li>
 <li><a href="https://github.com/astaxie/build-web-application-with-golang/blob/master/zh/02.7.md" target="_blank" rel="noopener">build-web-application-with-golang</a></li>
 <li><a href="https://golang.org/ref/mem" target="_blank" rel="noopener">The Go Memory Model</a></li>
 <li><a href="https://juejin.im/post/59f9c6d66fb9a0450e75713f" target="_blank" rel="noopener">IO多路复用原理剖析</a></li>
 <li><a href="https://www.jianshu.com/p/dfd940e7fca2" target="_blank" rel="noopener">聊聊IO多路复用之select、poll、epoll详解</a></li>
+<li><a href="https://www.cnblogs.com/aspirant/p/6877350.html?utm_source=itdadao&amp;utm_medium=referral" target="_blank" rel="noopener">IO多路复用,同步，异步，阻塞和非阻塞 区别</a></li>
 </ul>
 
       
@@ -447,7 +450,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -460,7 +463,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>
@@ -493,7 +496,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络层面"><span class="nav-number">2.</span> <span class="nav-text">网络层面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I-O多路复用"><span class="nav-number">3.</span> <span class="nav-text">I/O多路复用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#epoll"><span class="nav-number">3.1.</span> <span class="nav-text">epoll</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#goroutine"><span class="nav-number">4.</span> <span class="nav-text">goroutine</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-number">4.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调度"><span class="nav-number">4.2.</span> <span class="nav-text">调度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#channel"><span class="nav-number">4.3.</span> <span class="nav-text">channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">5.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I-O多路复用"><span class="nav-number">2.</span> <span class="nav-text">I/O多路复用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#epoll"><span class="nav-number">2.1.</span> <span class="nav-text">epoll</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#goroutine"><span class="nav-number">3.</span> <span class="nav-text">goroutine</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-number">3.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调度"><span class="nav-number">3.2.</span> <span class="nav-text">调度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#channel"><span class="nav-number">3.3.</span> <span class="nav-text">channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">4.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
             
 
           </div>
@@ -658,7 +661,7 @@
         var disqus_config = function () {
           this.page.url = 'http://yoursite.com/2018/05/05/go-courrency/';
           this.page.identifier = '2018/05/05/go-courrency/';
-          this.page.title = 'go为啥支持高并发';
+          this.page.title = 'IO多路复用与go';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://cainantong.disqus.com/embed.js';
